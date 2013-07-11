@@ -388,7 +388,6 @@ MSG_CREATING_LIBRARY = Creating library:
 
 
 # Define all object files.
-SYSMODS_OBJ = $(OS_SRC:%.c=$(OBJDIR)/%.o)
 OBJ = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDIR)/%.o) 
 
 # Define all listing files.
@@ -553,15 +552,6 @@ extcoff: $(TARGET).elf
 	@echo
 	@echo $(MSG_CREATING_LIBRARY) $@
 	$(AR) $@ $(OBJ)
-	
-	
-# Create library from os object files.
-.SECONDARY : libos.a
-.PRECIOUS : $(SYSMODS_OBJ)
-libos.a: $(SYSMODS_OBJ)
-	@echo
-	@echo $(MSG_CREATING_LIBRARY) $@
-	$(AR) $@ $(SYSMODS_OBJ)
 
 
 # Link: create ELF output file from object files.

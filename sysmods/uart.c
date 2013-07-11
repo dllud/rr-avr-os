@@ -42,6 +42,11 @@ void UART_init(void) {
     UCSR0B = _BV(RXEN0) | _BV(TXEN0);   /* Enable RX and TX */
 }
 
+/* TODO: Add a set of buffers for input and output.
+ * This way client modules would not block during a read or write.
+ * Such would facilitate the fulfillment of time constraints.
+ * Later this module would empty the buffers.
+ */
 void UART_putchar(char c, FILE *stream) {
     if (c == '\n') {
         UART_putchar('\r', stream);
@@ -51,6 +56,7 @@ void UART_putchar(char c, FILE *stream) {
 }
 
 char UART_getchar(FILE *stream) {
-    loop_until_bit_is_set(UCSR0A, RXC0); /* Wait until data exists. */
+	/* Wait until data exists. */
+    loop_until_bit_is_set(UCSR0A, RXC0);
     return UDR0;
 }

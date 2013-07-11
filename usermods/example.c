@@ -33,7 +33,6 @@ uint8_t pwm_value = 0;
 
 void EXAMPLE_init(void) { }
 
-// pin 10 = mcu internal thermistor
 void EXAMPLE_task(void) {
 	if(EXAMPLE_timer >= CHANGE_INTERVAL) {
 		EXAMPLE_timer = 0;
