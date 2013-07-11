@@ -84,9 +84,8 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SYSMODS_SRC = sysmods/time.c sysmods/led.c sysmods/uart.c sysmods/adc.c \
-			sysmods/digitalrw.c sysmods/list.c sysmods/pwm.c
-USERMODS_SRC = 
+SYSMODS_SRC = $(wildcard sysmods/*.c)
+USERMODS_SRC = $(wildcard usermods/*.c)
 SRC = $(TARGET).c $(SYSMODS_SRC) $(USERMODS_SRC)
 
 
@@ -389,7 +388,7 @@ MSG_CREATING_LIBRARY = Creating library:
 
 
 # Define all object files.
-OS_OBJ = $(OS_SRC:%.c=$(OBJDIR)/%.o)
+SYSMODS_OBJ = $(OS_SRC:%.c=$(OBJDIR)/%.o)
 OBJ = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDIR)/%.o) 
 
 # Define all listing files.
@@ -558,11 +557,11 @@ extcoff: $(TARGET).elf
 	
 # Create library from os object files.
 .SECONDARY : libos.a
-.PRECIOUS : $(OS_OBJ)
-libos.a: $(OS_OBJ)
+.PRECIOUS : $(SYSMODS_OBJ)
+libos.a: $(SYSMODS_OBJ)
 	@echo
 	@echo $(MSG_CREATING_LIBRARY) $@
-	$(AR) $@ $(OS_OBJ)
+	$(AR) $@ $(SYSMODS_OBJ)
 
 
 # Link: create ELF output file from object files.

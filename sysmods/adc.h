@@ -1,8 +1,8 @@
  /*
  * adc.h
- * Copyright (C) 2011 David Ludovino david.ludovino@gmail.com
+ * Copyright (C) 2011-2013 David Ludovino david.ludovino@gmail.com
  * 
- * Reads the Analog-to-Digital converter.
+ * Reads the Analog-to-Digital converter in Single Conversion Mode.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License Version 3 as
@@ -20,5 +20,6 @@
 /* public functions **/
 void ADC_init(void);
 uint16_t ADC_read(uint8_t pin);
+void ADC_off();
 
 #endif /* ADC_H_ */

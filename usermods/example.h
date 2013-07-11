@@ -1,10 +1,8 @@
  /*
- * pwm.h
+ * example.h
  * Copyright (C) 2013 David Ludovino david.ludovino@gmail.com
  * 
- * Writes PWM signals.
- * Only 8-bit Timer/Counters are supported: Timer/Counter0 and Timer/Counter2 in ATmegax8
- * Reason: this way we can keep the variable pin as a uint8_t and use the functions in list.c
+ * Uses various of the hardware abstraction functions provided by rr-avr-os.
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License Version 3 as
@@ -16,17 +14,18 @@
  * GNU General Public License for more details.
  */
 
-#ifndef PWM_H_
-#define PWM_H_
+#ifndef EXAMPLE_H_
+#define EXAMPLE_H_
 
-extern uint32_t PWM_timer;  /* 1 ms */
+/* Global includes for AVR */
+#include <avr/io.h>
+
+#define EXAMPLE_PWM_PIN OCR0A
+
+extern uint16_t EXAMPLE_timer;  /* 1 s */
 
 /* public functions **/
+void EXAMPLE_init(void);
+void EXAMPLE_task(void);
 
-void PWM_init(uint8_t pin);
-void PWM_write(uint8_t pin, uint8_t value);
-void PWM_reset(uint8_t pin);
-void PWM_write_timed(uint8_t pin, uint8_t value, uint32_t duration);
-void PWM_task(void);
-
-#endif /* PWM_H_ */
+#endif /* EXAMPLE_H_ */

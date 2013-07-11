@@ -67,10 +67,14 @@ void PWM_write_timed(uint8_t pin, uint8_t value, uint32_t duration){
 	LIST_insert(&PWM_head, 0, pin, PWM_timer + duration);
 }
 
-void PWM_reset(uint8_t port, uint8_t pin) {
+void PWM_reset(uint8_t pin) {
 	pin = 0xFF; //Set the duty cycle to 0%.
 }
 
+void PWM_reset_expired(uint8_t port, uint8_t pin) {
+	PWM_reset(pin);
+}
+
 void PWM_task(void) {
-	LIST_remove_expired(&PWM_head, PWM_timer, &PWM_reset);
+	LIST_remove_expired(&PWM_head, PWM_timer, &PWM_reset_expired);
 }

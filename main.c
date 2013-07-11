@@ -30,6 +30,8 @@
 #include "sysmods/uart.h"
 #include "sysmods/adc.h"
 #include "sysmods/digitalrw.h"
+#include "sysmods/pwm.h"
+#include "usermods/example.h"
 
 /* Initializes AVR microcontroller. */
 void avr_init(void)
@@ -50,19 +52,29 @@ void avr_init(void)
 
 /* Main cicle. Initializes modules and calls their tasks in round-robin. */
 int main(void) {
+	/* sysmods init */
 	avr_init();
 	TIME_init();
 	LED_init(1);
 	UART_init();
 	ADC_init();
 	DIGITALRW_init();
+	PWM_init(EXAMPLE_PWM_PIN);
+	
+	/* usermods init */
+	EXAMPLE_init();
 
 	enable_interrupts; /* Enables all interrupts (node.h) */
 	
 	while(1)
 	{
+		/* sysmods task */
 		TIME_task();
 		LED_task();
 		DIGITALRW_task();
+		PWM_task();
+		
+		/* usermods task */
+		EXAMPLE_task();
 	}
 }
