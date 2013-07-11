@@ -23,20 +23,20 @@ rr-avr-os is composed by modules which should encapsulate a well defined functio
 
 The init functions are called during program initialization and should be used to: make configurations, start timers, etc. The task functions are called in round-robin inside an infinite loop and provide the module's functionality, e.g., keep track of time or blink a LED. They should contain the repetitive actions which the module needs to execute.
 
-There are two types of modules: system modules (sysmods) and user modules (usermods). sysmods are provided by rr-avr-os and encapsulate hardware functionality inside a simpler interface. They can also extend the available functionality such as the case of timed writes in [digitalrw](/digitalrw.h) and [pwm](/pwm.h). usermods are written by the project's developer and take care of the business logic, implementing the project's functionality.
+There are two types of modules: system modules (sysmods) and user modules (usermods). sysmods are provided by rr-avr-os and encapsulate hardware functionality inside a simpler interface. They can also extend the available functionality such as the case of timed writes in [digitalrw](/sysmods/digitalrw.h) and [pwm](/sysmods/pwm.h). usermods are written by the project's developer and take care of the business logic, implementing the project's functionality.
 
 sysmods
 -------
-* [adc](/adc.h) - Reads the Analog-to-Digital converter in Single Conversion Mode.
-* [digitalrw](/digitalrw.h) - Reads and writes from digital ports.
-* [led](/led.h) - Blinks the "alive" LED.
-* [pwm](/pwm.h) - Writes PWM signals in Fast PWM mode.
-* [time](/time.c) - Allows the tracking of periods of 200 us, 1 ms, 10 ms, 50 ms, 100 ms, 1 s, 1 min, etc.
-* [uart](/uart.h) - Reads and writes chars from/to the UART (serial communication). Directs stdout and stdin to the UART.
+* [adc](/sysmods/adc.h) - Reads the Analog-to-Digital converter in Single Conversion Mode.
+* [digitalrw](/sysmods/digitalrw.h) - Reads and writes from digital ports.
+* [led](/sysmods/led.h) - Blinks the "alive" LED.
+* [pwm](/sysmods/pwm.h) - Writes PWM signals in Fast PWM mode.
+* [time](/sysmods/time.c) - Allows the tracking of periods of 200 us, 1 ms, 10 ms, 50 ms, 100 ms, 1 s, 1 min, etc.
+* [uart](/sysmods/uart.h) - Reads and writes chars from/to the UART (serial communication). Directs stdout and stdin to the UART.
 
 Using rr-avr-os
 ---------------
-In order to use rr-avr-os you just need to clone this repository and start writing your usermods. Do not forget to call them from [main.c](/blob/master/main.c). Be aware of your application time constraints and the limitations of round-robin: the code inside a module's task function should have a short execution time, otherwise it may starve other modules of processor time.
+In order to use rr-avr-os you just need to clone this repository and start writing your usermods. Do not forget to call them from [main.c](/main.c). Be aware of your application time constraints and the limitations of round-robin: the code inside a module's task function should have a short execution time, otherwise it may starve other modules of processor time.
 
 Compiling and running
 ---------------------
