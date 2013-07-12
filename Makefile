@@ -13,6 +13,7 @@
 # Sander Pool
 # Frederik Rouleau
 # Carlos Lamas
+# David Ludovino
 #
 #----------------------------------------------------------------------------
 # On command line:
@@ -31,6 +32,8 @@
 # make debug = Start either simulavr or avarice as specified for debugging, 
 #              with avr-gdb or avr-insight as the front end for debugging.
 #
+# make sim = Start a simulation in simulavr with no debugging.
+#
 # make filename.s = Just compile filename.c into the assembler code only.
 #
 # make filename.i = Create a preprocessed source file for use in submitting
@@ -41,7 +44,7 @@
 
 
 # MCU name
-MCU = atmega328p
+MCU = atmega328
 
 
 # Arduino board version: duemilanove or uno
@@ -84,9 +87,7 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SYSMODS_SRC = $(wildcard sysmods/*.c)
-USERMODS_SRC = $(wildcard usermods/*.c)
-SRC = $(TARGET).c $(SYSMODS_SRC) $(USERMODS_SRC)
+SRC = $(TARGET).c $(wildcard sysmods/*.c) $(wildcard usermods/*.c)
 
 
 # List C++ source files here. (C dependencies are automatically generated.)
@@ -220,8 +221,8 @@ PRINTF_LIB_FLOAT = -Wl,-u,vfprintf -lprintf_flt
 
 # If this is left blank, then it will use the Standard printf version.
 #PRINTF_LIB = 
-#PRINTF_LIB = $(PRINTF_LIB_MIN)
-PRINTF_LIB = $(PRINTF_LIB_FLOAT)
+PRINTF_LIB = $(PRINTF_LIB_MIN)
+#PRINTF_LIB = $(PRINTF_LIB_FLOAT)
 
 
 # Minimalistic scanf version
@@ -231,12 +232,12 @@ SCANF_LIB_MIN = -Wl,-u,vfscanf -lscanf_min
 SCANF_LIB_FLOAT = -Wl,-u,vfscanf -lscanf_flt
 
 # If this is left blank, then it will use the Standard scanf version.
-SCANF_LIB = 
-#SCANF_LIB = $(SCANF_LIB_MIN)
+#SCANF_LIB = 
+SCANF_LIB = $(SCANF_LIB_MIN)
 #SCANF_LIB = $(SCANF_LIB_FLOAT)
 
 
-MATH_LIB = -lm
+#MATH_LIB = -lm
 
 
 # List any extra directories to look for libraries here.
@@ -284,8 +285,7 @@ AVRDUDE_PROGRAMMER = arduino
 ifeq ($(ARDUINO_VERSION),duemilanove)
 	AVRDUDE_PORT = /dev/ttyUSB0
 else ifeq ($(ARDUINO_VERSION),uno)
-	# AVRDUDE_PORT = /dev/ttyACM0 for linux
-	AVRDUDE_PORT = com3 # for windows
+	AVRDUDE_PORT = /dev/ttyACM0
 else
 	AVRDUDE_PORT = /dev/COM1
 endif
@@ -325,12 +325,12 @@ AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) -b $(AVRDU
 DEBUG_MFREQ = $(F_CPU)
 
 # Set the DEBUG_UI to either gdb or insight.
-# DEBUG_UI = gdb
-DEBUG_UI = insight
+DEBUG_UI = gdb
+#DEBUG_UI = insight
 
 # Set the debugging back-end to either avarice, simulavr.
-DEBUG_BACKEND = avarice
-#DEBUG_BACKEND = simulavr
+#DEBUG_BACKEND = avarice
+DEBUG_BACKEND = simulavr
 
 # GDB Init Filename.
 GDBINIT_FILE = __avr_gdbinit
@@ -352,7 +352,6 @@ DEBUG_HOST = localhost
 
 
 # Define programs and commands.
-SHELL = sh
 CC = avr-gcc
 OBJCOPY = avr-objcopy
 OBJDUMP = avr-objdump
@@ -363,7 +362,6 @@ AVRDUDE = avrdude
 REMOVE = rm -f
 REMOVEDIR = rm -rf
 COPY = cp
-WINSHELL = cmd
 
 
 # Define Messages
@@ -411,8 +409,6 @@ ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 # Default target.
 all: begin gccversion sizebefore build sizeafter end
 
-# Build a library with just the os filesystem
-libos: begin gccversion sizebefore libos.a sizeafter end
 
 # Change the build target to build a HEX file or a library.
 build: elf hex eep lss sym
@@ -484,17 +480,16 @@ endif
 debug: gdb-config $(TARGET).elf
 ifeq ($(DEBUG_BACKEND), avarice)
 	@echo Starting AVaRICE - Press enter when "waiting to connect" message displays.
-	@$(WINSHELL) /c start avarice --jtag $(JTAG_DEV) --erase --program --file \
-	$(TARGET).elf $(DEBUG_HOST):$(DEBUG_PORT)
-	@$(WINSHELL) /c pause
-
+	avarice --jtag $(JTAG_DEV) --erase --program --file $(TARGET).elf $(DEBUG_HOST):$(DEBUG_PORT)
+	pause
 else
-	@$(WINSHELL) /c start simulavr --gdbserver --device $(MCU) --clock-freq \
-	$(DEBUG_MFREQ) --port $(DEBUG_PORT)
+	simulavr -g -d $(MCU) -F $(DEBUG_MFREQ) -p $(DEBUG_PORT) -W 0xC6,- &
 endif
-	@$(WINSHELL) /c start avr-$(DEBUG_UI) --command=$(GDBINIT_FILE)
+	avr-$(DEBUG_UI) --command=$(GDBINIT_FILE)
+	killall simulavr
 
-
+sim: $(TARGET).elf
+	simulavr -d $(MCU) -F $(DEBUG_MFREQ) -f $(TARGET).elf -W 0xC6,-
 
 
 # Convert ELF to COFF for use in debugging / simulating in AVR Studio or VMLAB.
@@ -618,6 +613,7 @@ clean_list :
 	$(REMOVE) $(SRC:.c=.s)
 	$(REMOVE) $(SRC:.c=.d)
 	$(REMOVE) $(SRC:.c=.i)
+	$(REMOVE) $(GDBINIT_FILE)
 	$(REMOVEDIR) .dep
 
 

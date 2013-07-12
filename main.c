@@ -38,11 +38,11 @@ void avr_init(void)
 {
 	/* DDR - Data Direction Register.
 	 * Specifies if a port should be an input 0 or an output 1.
-	 * PORTA does not exist in ATmegaxx8P */
-	DDRB = 0xEC; /* Arduino's digital outputs 8-13. Pin 5 is connected to Arduino's onboard LED */
-							 /* pins: 7, 6, 5, 3 and 2 as outputs: 1110 1100 */
+	 * PORTA does not exist in ATmegaX8 */
+	DDRB = 0xE0; /* Arduino's digital outputs 8-13. Pin 5 is connected to Arduino's onboard LED. */
+				 /* pins: 7, 6, and 5 as outputs: 1110 0000 */
 	DDRC = 0x00; /* Arduino's analog inputs 0-5 */
-	DDRD = 0xFF; /* Arduino's digital outputs 0-7. 6 outputs (8 - RX and TX)*/
+	DDRD = 0x0E; /* Arduino's digital outputs 0-7. RX = 0 and TX = 1 0000 1110 */
 
 	/* All outputs = 0 and pull-ups off to allow reading. */
 	PORTB = 0x00;

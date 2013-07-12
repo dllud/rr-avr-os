@@ -175,7 +175,8 @@ void TIME_task(void)
 	if(t1s_n10ms >= TIME_1S_N10MS)
 	{
 		t1s_n10ms = 0; /* 1 s = 100 * 10 ms */
-		++EXAMPLE_timer;
+		++EXAMPLE_timer_pwm;
+		++EXAMPLE_timer_adc;
 		/*++MODULEXXX_timer; :cfg02*/
 	}
 #endif

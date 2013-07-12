@@ -22,7 +22,8 @@
 
 #define EXAMPLE_PWM_PIN OCR0A
 
-extern uint16_t EXAMPLE_timer;  /* 1 s */
+extern uint16_t EXAMPLE_timer_pwm;  /* 1 s */
+extern uint16_t EXAMPLE_timer_adc;  /* 1 s */
 
 /* public functions **/
 void EXAMPLE_init(void);

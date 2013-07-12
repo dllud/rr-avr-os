@@ -42,6 +42,8 @@ Be aware of your application time constraints and the limitations of round-robin
 * Analog-to-Digital converter: read the comments on `ADC_init()` from [adc.c](/sysmods/adc.c);
 * functions which read/write to the std{out/in}, which are directed to the UART: read the comments on `UART_putchar()` from [uart.c](/sysmods/uart.c).
 
+Take some time to read the Makefile. There are some configurations you will have to make. For instance, if you use doubles you need to uncomment MATH_LIB variable and choose the right type of printf and scanf functions.
+
 Compiling and running
 ---------------------
 Configure the Makefile according to the AVR microcontroller your are using. Then, run `make` to compile and `make program` to upload to your device.

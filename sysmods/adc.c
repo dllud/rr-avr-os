@@ -18,12 +18,11 @@
 #include "node.h"
 
 /* Global inclues for AVR */
- #include <avr/io.h>
+#include <avr/io.h>
 
 /* Includes specific to this module */
 #include "adc.h"
 #include <limits.h>
-#include <stdio.h>
 
 /* Global varibales */
 
@@ -60,6 +59,6 @@ uint16_t ADC_read(uint8_t pin) {
 }
 
 /* Disable ADC */
-void ADC_off() {
+void ADC_off(void) {
 	ADCSRA &= ~_BV(ADEN);
 }

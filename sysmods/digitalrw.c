@@ -34,21 +34,19 @@ list_el *DIGITALRW_head = NULL;
 
 void DIGITALRW_init(void) { }
 
-/*
- * On port this receives a PINx, where x = { A, B, C, D }
-*/
 char DIGITALRW_read(uint8_t port, uint8_t pin) {
 	return port & _BV(pin);
 }
 
-/*
- * On port this receives a PORTx, where x = { A, B, C, D }
-*/
 void DIGITALRW_write(uint8_t port, uint8_t pin, uint8_t value) {
 	if(value) // Write 1
 		port |= _BV(pin);
 	else // Write 0
 		port &= ~_BV(pin);
+}
+
+void DIGITALRW_toggle(uint8_t port, uint8_t pin) {
+	port ^= _BV(pin);
 }
 
 /* Using a list with dynamically allocated memory in an embedded system
@@ -60,10 +58,7 @@ void DIGITALRW_write_timed(uint8_t port, uint8_t pin, uint8_t value, uint32_t du
 	LIST_insert(&DIGITALRW_head, port, pin, DIGITALRW_timer + duration);
 }
 
-void DIGITALRW_reset(uint8_t port, uint8_t pin) {
-	port ^= _BV(pin);
-}
 
 void DIGITALRW_task(void) {
-	LIST_remove_expired(&DIGITALRW_head, DIGITALRW_timer, &DIGITALRW_reset);
+	LIST_remove_expired(&DIGITALRW_head, DIGITALRW_timer, &DIGITALRW_toggle);
 }

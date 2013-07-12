@@ -27,7 +27,6 @@
 
 /* ::define **/
 #define LED_PORT  PORTB
-#define LED_DDR  DDRB 
 #define LED_PIN_MASK  0x20  /* PIN5 : 0010 0000 */
 /* Arduino has no internal watchdog. */
 
@@ -63,7 +62,7 @@ void LED_init(uint8_t num_pulses)
   /* led_toggle_n = 0; unnecessary */
 }
 
-/* SYS0 task. Controls the "alive" LED. The LED emmits a sequence of blinks
+/* LED task. Controls the "alive" LED. The LED emmits a sequence of blinks
  * separated by a pause. Timmings are defined in LED_[PULSE/PAUSE]_TIME.
  * The number of sequential blinks depends on led_num_toggles. For N
  * blinks this variable must contain the value 2*N-1. Check led_num_pulses().*/

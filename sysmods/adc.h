@@ -20,6 +20,6 @@
 /* public functions **/
 void ADC_init(void);
 uint16_t ADC_read(uint8_t pin);
-void ADC_off();
+void ADC_off(void);
 
 #endif /* ADC_H_ */
