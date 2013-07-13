@@ -29,8 +29,9 @@
 # make program = Download the hex file to the device, using avrdude.
 #                Please customize the avrdude settings below first!
 #
-# make debug = Start either simulavr or avarice as specified for debugging, 
-#              with avr-gdb or avr-insight as the front end for debugging.
+# make debug = Start simulavr with avr-gdb or avr-insight as the front end for debugging.
+#
+# make debug-avarice = Start avarice with avr-gdb or avr-insight as the front end for debugging.
 #
 # make sim = Start a simulation in simulavr with no debugging.
 #
@@ -44,7 +45,8 @@
 
 
 # MCU name
-MCU = atmega328
+# Note: also configure DBBUG_MCU
+MCU = atmega328p
 
 
 # Arduino board version: duemilanove or uno
@@ -87,7 +89,7 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c $(wildcard sysmods/*.c) $(wildcard usermods/*.c)
+SRC = $(wildcard *.c) $(wildcard */*.c)
 
 
 # List C++ source files here. (C dependencies are automatically generated.)
@@ -154,7 +156,6 @@ CPPDEFS = -DF_CPU=$(F_CPU)UL
 #  -Wall...:     warning level
 #  -Wa,...:      tell GCC to pass this to the assembler.
 #    -adhlns...: create assembler listing
-CFLAGS = -g$(DEBUG)
 CFLAGS += $(CDEFS)
 CFLAGS += -O$(OPT)
 CFLAGS += -funsigned-char
@@ -180,7 +181,6 @@ CFLAGS += $(CSTANDARD)
 #  -Wall...:     warning level
 #  -Wa,...:      tell GCC to pass this to the assembler.
 #    -adhlns...: create assembler listing
-CPPFLAGS = -g$(DEBUG)
 CPPFLAGS += $(CPPDEFS)
 CPPFLAGS += -O$(OPT)
 CPPFLAGS += -funsigned-char
@@ -220,8 +220,8 @@ PRINTF_LIB_MIN = -Wl,-u,vfprintf -lprintf_min
 PRINTF_LIB_FLOAT = -Wl,-u,vfprintf -lprintf_flt
 
 # If this is left blank, then it will use the Standard printf version.
-#PRINTF_LIB = 
-PRINTF_LIB = $(PRINTF_LIB_MIN)
+PRINTF_LIB = 
+#PRINTF_LIB = $(PRINTF_LIB_MIN)
 #PRINTF_LIB = $(PRINTF_LIB_FLOAT)
 
 
@@ -232,8 +232,8 @@ SCANF_LIB_MIN = -Wl,-u,vfscanf -lscanf_min
 SCANF_LIB_FLOAT = -Wl,-u,vfscanf -lscanf_flt
 
 # If this is left blank, then it will use the Standard scanf version.
-#SCANF_LIB = 
-SCANF_LIB = $(SCANF_LIB_MIN)
+SCANF_LIB = 
+#SCANF_LIB = $(SCANF_LIB_MIN)
 #SCANF_LIB = $(SCANF_LIB_FLOAT)
 
 
@@ -321,6 +321,11 @@ AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) -b $(AVRDU
 
 #---------------- Debugging Options ----------------
 
+# simulavr only supports a subset of the available AVR mcus.
+# "simulavr --help" lists the supported mcus.
+# For simulation choose the most similiar to your target mcu.
+DEBUG_MCU = atmega328
+
 # For simulavr only - target MCU frequency.
 DEBUG_MFREQ = $(F_CPU)
 
@@ -328,12 +333,10 @@ DEBUG_MFREQ = $(F_CPU)
 DEBUG_UI = gdb
 #DEBUG_UI = insight
 
-# Set the debugging back-end to either avarice, simulavr.
-#DEBUG_BACKEND = avarice
-DEBUG_BACKEND = simulavr
-
 # GDB Init Filename.
 GDBINIT_FILE = __avr_gdbinit
+
+RUN_DEBUG_UI = avr-$(DEBUG_UI) --command=$(GDBINIT_FILE)
 
 # When using avarice settings for the JTAG
 JTAG_DEV = /dev/com1
@@ -346,6 +349,11 @@ DEBUG_PORT = 4242
 #     avarice is running on a different computer.
 DEBUG_HOST = localhost
 
+# Used to direct UART writes to stdout in simulavr.
+# Check the value in the approate io header file in /usr/lib/avr/include/avr
+UDR0_ADDR = 0xC6
+
+SIMULAVR_FLAGS = -d $(DEBUG_MCU) -F $(DEBUG_MFREQ) -W $(UDR0_ADDR),-
 
 
 #============================================================================
@@ -362,6 +370,8 @@ AVRDUDE = avrdude
 REMOVE = rm -f
 REMOVEDIR = rm -rf
 COPY = cp
+GREP = grep
+MKDIR = mkdir
 
 
 # Define Messages
@@ -386,32 +396,38 @@ MSG_CREATING_LIBRARY = Creating library:
 
 
 # Define all object files.
-OBJ = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDIR)/%.o) 
+OBJ = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDIR)/%.o)
 
 # Define all listing files.
-LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.S=$(OBJDIR)/%.lst) 
+LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.S=$(OBJDIR)/%.lst)
 
+#Define all assembler files
+ASM = $(SRC:%.c=$(OBJDIR)/%.s) $(CPPSRC:%.cpp=$(OBJDIR)/%.s)
 
 # Compiler flags to generate dependency files.
 GENDEPFLAGS = -MMD -MP -MF .dep/$(@F).d
 
+EXISTS_ELF = $(shell if test -f $(TARGET).elf; then echo YES; fi)
+
+DEBUG_NSYMS = $(shell $(OBJDUMP) --syms $(TARGET).elf 2> /dev/null | $(GREP) -c debug)
 
 # Combine all necessary flags and optional flags.
 # Add target processor to flags.
-ALL_CFLAGS = -mmcu=$(MCU) -I. $(CFLAGS) $(GENDEPFLAGS)
-ALL_CPPFLAGS = -mmcu=$(MCU) -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
+ALL_CFLAGS = -mmcu=$(MCU) -I. $(DEBUG_FLAG) $(CFLAGS) $(GENDEPFLAGS)
+ALL_CPPFLAGS = -mmcu=$(MCU) -I. -x c++ $(DEBUG_FLAG) $(CPPFLAGS) $(GENDEPFLAGS)
 ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 
 
-	
+
 
 
 # Default target.
-all: begin gccversion sizebefore build sizeafter end
+all: begin clean-if-debug-syms sizebefore build sizeafter end
 
 
 # Change the build target to build a HEX file or a library.
-build: elf hex eep lss sym
+#build: elf hex eep lss sym
+build: elf hex eep
 #build: lib
 
 
@@ -451,14 +467,8 @@ sizeafter:
 
 
 
-# Display compiler version information.
-gccversion : 
-	@$(CC) --version
-
-
-
 # Program the device.  
-program: $(TARGET).hex $(TARGET).eep
+program: clean-if-debug-syms $(TARGET).hex $(TARGET).eep
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM)
 
 
@@ -472,25 +482,48 @@ gdb-config:
 	@echo end >> $(GDBINIT_FILE)
 	@echo file $(TARGET).elf >> $(GDBINIT_FILE)
 	@echo target remote $(DEBUG_HOST):$(DEBUG_PORT)  >> $(GDBINIT_FILE)
-ifeq ($(DEBUG_BACKEND),simulavr)
-	@echo load  >> $(GDBINIT_FILE)
-endif
+	@echo $(DEBUG_BACKEND)
 	@echo break main >> $(GDBINIT_FILE)
 
-debug: gdb-config $(TARGET).elf
-ifeq ($(DEBUG_BACKEND), avarice)
-	@echo Starting AVaRICE - Press enter when "waiting to connect" message displays.
-	avarice --jtag $(JTAG_DEV) --erase --program --file $(TARGET).elf $(DEBUG_HOST):$(DEBUG_PORT)
-	pause
-else
-	simulavr -g -d $(MCU) -F $(DEBUG_MFREQ) -p $(DEBUG_PORT) -W 0xC6,- &
+sim-opts:
+	$(eval MCU = $(DEBUG_MCU))
+	
+clean-if-no-debug-syms:
+ifeq ($(EXISTS_ELF),YES)
+ifeq ($(DEBUG_NSYMS),0)
+	$(MAKE) clean_list
+	$(MKDIR) .dep
 endif
-	avr-$(DEBUG_UI) --command=$(GDBINIT_FILE)
+endif
+
+clean-if-debug-syms:
+ifeq ($(EXISTS_ELF),YES)
+ifneq ($(DEBUG_NSYMS),0)
+	$(MAKE) clean_list
+	$(MKDIR) .dep
+endif
+endif
+
+debug-opts: clean-if-no-debug-syms
+	$(eval DEBUG_FLAG = -g$(DEBUG))
+	
+debug: begin debug-simulavr end
+
+debug-simulavr: sim-opts debug-opts sizebefore gdb-config $(TARGET).elf sizeafter
+	@echo load  >> $(GDBINIT_FILE)
+	simulavr $(SIMULAVR_FLAGS) -g -p $(DEBUG_PORT) &
+	$(RUN_DEBUG_UI)
 	killall simulavr
+	
+debug-avarice: begin debug-opts sizebefore gdb-config $(TARGET).elf sizeafter
+	avarice --jtag $(JTAG_DEV) --erase --program --file $(TARGET).elf $(DEBUG_HOST):$(DEBUG_PORT) &
+	$(RUN_DEBUG_UI)
+	
+sim: begin sim-simulavr end
 
-sim: $(TARGET).elf
-	simulavr -d $(MCU) -F $(DEBUG_MFREQ) -f $(TARGET).elf -W 0xC6,-
-
+sim-simulavr: clean-if-debug-syms sim-opts sizebefore $(TARGET).elf sizeafter
+	simulavr $(SIMULAVR_FLAGS) -f $(TARGET).elf
+	
 
 # Convert ELF to COFF for use in debugging / simulating in AVR Studio or VMLAB.
 COFFCONVERT = $(OBJCOPY) --debugging
@@ -608,24 +641,25 @@ clean_list :
 	$(REMOVE) $(TARGET).map
 	$(REMOVE) $(TARGET).sym
 	$(REMOVE) $(TARGET).lss
-	$(REMOVE) $(SRC:%.c=$(OBJDIR)/%.o)
-	$(REMOVE) $(SRC:%.c=$(OBJDIR)/%.lst)
-	$(REMOVE) $(SRC:.c=.s)
-	$(REMOVE) $(SRC:.c=.d)
+	$(REMOVE) $(OBJ)
+	$(REMOVE) $(LST)
+	$(REMOVE) $(ASM)
 	$(REMOVE) $(SRC:.c=.i)
 	$(REMOVE) $(GDBINIT_FILE)
 	$(REMOVEDIR) .dep
 
 
 # Create object files directory
-$(shell mkdir $(OBJDIR) 2>/dev/null)
+$(shell $(MKDIR) $(OBJDIR) 2>/dev/null)
 
 
 # Include the dependency files.
--include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
+-include $(shell $(MKDIR) .dep 2>/dev/null) $(wildcard .dep/*)
 
 
 # Listing of phony targets.
-.PHONY : all begin finish end sizebefore sizeafter gccversion \
+.PHONY : all begin finish end sizebefore sizeafter \
 build elf hex eep lss sym coff extcoff \
-clean clean_list program debug gdb-config
+clean clean_list program debug gdb-config \
+debug-opts sim-opts debug-avarice clean-if-no-debug-syms \
+clean-if-debug-syms sim sim-simulavr debug-simulavr
