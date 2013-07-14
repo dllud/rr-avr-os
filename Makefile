@@ -407,9 +407,14 @@ ASM = $(SRC:%.c=$(OBJDIR)/%.s) $(CPPSRC:%.cpp=$(OBJDIR)/%.s)
 # Compiler flags to generate dependency files.
 GENDEPFLAGS = -MMD -MP -MF .dep/$(@F).d
 
-EXISTS_ELF = $(shell if test -f $(TARGET).elf; then echo YES; fi)
+PREV_RULE_FILE = .prev_rule
 
-DEBUG_NSYMS = $(shell $(OBJDUMP) --syms $(TARGET).elf 2> /dev/null | $(GREP) -c debug)
+EXISTS_PREV_RULE = test -f $(PREV_RULE_FILE)
+
+PREV_RUN_TYPE = sed '1!d' $(PREV_RULE_FILE)
+
+PREV_DEVICE = sed '2!d' $(PREV_RULE_FILE)
+
 
 # Combine all necessary flags and optional flags.
 # Add target processor to flags.
@@ -422,7 +427,7 @@ ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 
 
 # Default target.
-all: begin clean-if-debug-syms sizebefore build sizeafter end
+all: begin set-run set-mcu clean-if+save sizebefore build sizeafter end
 
 
 # Change the build target to build a HEX file or a library.
@@ -468,7 +473,7 @@ sizeafter:
 
 
 # Program the device.  
-program: clean-if-debug-syms $(TARGET).hex $(TARGET).eep
+program: set-run set-mcu clean-if+save $(TARGET).hex $(TARGET).eep
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM)
 
 
@@ -484,44 +489,55 @@ gdb-config:
 	@echo target remote $(DEBUG_HOST):$(DEBUG_PORT)  >> $(GDBINIT_FILE)
 	@echo $(DEBUG_BACKEND)
 	@echo break main >> $(GDBINIT_FILE)
+	
+set-run:
+	$(eval CURR_RUN_TYPE = run)
 
+set-debug:
+	$(eval CURR_RUN_TYPE = debug)
+	
+set-mcu:
+	$(eval CURR_DEVICE = mcu)
+	
+set-simulavr:
+	$(eval CURR_DEVICE = simulavr)
+	
+set-avarice:
+	$(eval CURR_DEVICE = avarice)
+	
 sim-opts:
 	$(eval MCU = $(DEBUG_MCU))
 	
-clean-if-no-debug-syms:
-ifeq ($(EXISTS_ELF),YES)
-ifeq ($(DEBUG_NSYMS),0)
-	$(MAKE) clean_list
-	$(MKDIR) .dep
-endif
-endif
-
-clean-if-debug-syms:
-ifeq ($(EXISTS_ELF),YES)
-ifneq ($(DEBUG_NSYMS),0)
-	$(MAKE) clean_list
-	$(MKDIR) .dep
-endif
-endif
-
-debug-opts: clean-if-no-debug-syms
+debug-opts: clean-if+save
 	$(eval DEBUG_FLAG = -g$(DEBUG))
+
+clean-if+save:
+	@if $(EXISTS_PREV_RULE); then \
+		if [ "$$($(PREV_RUN_TYPE))" != "$(CURR_RUN_TYPE)" ]; then \
+			$(MAKE) clean_list; $(MKDIR) .dep; \
+		else if [ "$$($(PREV_DEVICE))" != "$(CURR_DEVICE)" ] && [ "$(MCU)" != "$(DEBUG_MCU)" ]; then \
+			$(MAKE) clean_list; $(MKDIR) .dep; \
+			fi \
+		fi \
+	fi
+	@echo $(CURR_RUN_TYPE) >| $(PREV_RULE_FILE)
+	@echo $(CURR_DEVICE) >> $(PREV_RULE_FILE)
 	
 debug: begin debug-simulavr end
 
-debug-simulavr: sim-opts debug-opts sizebefore gdb-config $(TARGET).elf sizeafter
+debug-simulavr: set-debug set-simulavr clean-if+save sim-opts debug-opts sizebefore gdb-config $(TARGET).elf sizeafter
 	@echo load  >> $(GDBINIT_FILE)
 	simulavr $(SIMULAVR_FLAGS) -g -p $(DEBUG_PORT) &
 	$(RUN_DEBUG_UI)
 	killall simulavr
 	
-debug-avarice: begin debug-opts sizebefore gdb-config $(TARGET).elf sizeafter
+debug-avarice: begin set-debug set-avarice clean-if+save debug-opts sizebefore gdb-config $(TARGET).elf sizeafter
 	avarice --jtag $(JTAG_DEV) --erase --program --file $(TARGET).elf $(DEBUG_HOST):$(DEBUG_PORT) &
 	$(RUN_DEBUG_UI)
 	
 sim: begin sim-simulavr end
 
-sim-simulavr: clean-if-debug-syms sim-opts sizebefore $(TARGET).elf sizeafter
+sim-simulavr: set-run set-simulavr clean-if+save sim-opts sizebefore $(TARGET).elf sizeafter
 	simulavr $(SIMULAVR_FLAGS) -f $(TARGET).elf
 	
 
@@ -631,7 +647,7 @@ $(OBJDIR)/%.o : %.S
 # Target: clean project.
 clean: begin clean_list end
 
-clean_list :
+clean_list:
 	@echo
 	@echo $(MSG_CLEANING)
 	$(REMOVE) $(TARGET).hex
@@ -646,6 +662,7 @@ clean_list :
 	$(REMOVE) $(ASM)
 	$(REMOVE) $(SRC:.c=.i)
 	$(REMOVE) $(GDBINIT_FILE)
+	$(REMOVE) $(PREV_RULE_FILE)
 	$(REMOVEDIR) .dep
 
 
@@ -661,5 +678,5 @@ $(shell $(MKDIR) $(OBJDIR) 2>/dev/null)
 .PHONY : all begin finish end sizebefore sizeafter \
 build elf hex eep lss sym coff extcoff \
 clean clean_list program debug gdb-config \
-debug-opts sim-opts debug-avarice clean-if-no-debug-syms \
-clean-if-debug-syms sim sim-simulavr debug-simulavr
+debug-opts sim-opts debug-avarice clean-if+save-no-debug-syms \
+clean-if+save-debug-syms sim sim-simulavr debug-simulavr

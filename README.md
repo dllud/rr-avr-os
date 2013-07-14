@@ -48,6 +48,22 @@ Compiling and running
 ---------------------
 Configure the Makefile according to the AVR microcontroller your are using. Then, run `make` to compile and `make program` to upload to your device.
 
+You can install [simulavr](http://www.nongnu.org/simulavr/download.html) and then run `make sim` to simulate your program. `make debug` runs simulavr connected to avr-gdb, allowing stepwise debugging.
+
+If you own an AVR JTAG ICE or an AVR Dragon you can use `make debug-avarice` for on-chip debugging.
+
+Example module
+--------------
+
+rr-avr-os ships with an [example usermod](/usermods/example.c) which also serves as a functionality test. It expects the following circuit (the schematic is available in [gschem gEDA](http://www.geda-project.org/) format at [example.sch](/usermods/example.sch):
+
+![example usermod circuit schematic](https://imageshack.us/a/img15/7962/idox.png)
+
+The module does three tasks:
+* reads PD4 pin and turns on LED1 at PD2 when S1 is pushed;
+* dims LED2 at PD3 using PWM, going from 0% duty cycle to 100%, with increments every 2 seconds;
+* reads ADC0 at PC0 and outputs the value to the UART; with the symmetric voltage divider created by R1 and R2 the expected output is MAX_VALUE / 2 = 1024 / 2 = 512.
+
 Authorship
 ----------
 The base of what is now rr-avr-os was originally developed by [Renato Nunes](https://fenix.ist.utl.pt/homepage/ist12102). It was deployed on prototype hardware platforms with AVR microcontrollers. These were used for home automation as part of the [DomoBus](http://domobus.net/) project. The code was later given to students of the [Ambient Intelligence course at IST](https://fenix.ist.utl.pt/publico/degreeSite/viewCurricularCourse.faces?organizeBy=groups&hideCourses=false&action=null&degreeCurricularPlanID=432&showRules=false&executionYearID=2258&degreeID=147&curricularCourseID=17606&contentContextPath_PATH=/cursos/meic-a/plano-curricular&locale=en_EN) and improved by [me](https://github.com/dllud) for academic and homemade projects.
