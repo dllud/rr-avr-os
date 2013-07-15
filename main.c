@@ -57,7 +57,7 @@ int main(void) {
 	TIME_init();
 	LED_init(1);
 	UART_init();
-	ADC_init();
+	ADC_init_10bit();
 	DIGITALRW_init();
 	PWM_init(&EXAMPLE_PWM_PIN);
 	

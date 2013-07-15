@@ -25,8 +25,8 @@
 #include "sysmods/digitalrw.h"
 #include "sysmods/adc.h"
 
-#define CHANGE_PWM_INTERVAL 2 // 2 * 100 = 200 ms
-#define READ_ADC_INTERVAL 20 // seconds
+#define CHANGE_PWM_INTERVAL 2 // * 100 = 200 ms
+#define READ_ADC_INTERVAL 1 // seconds
 #define BUTTON_PORT PIND
 #define BUTTON_PIN PIND4
 #define LED_PORT PORTD
@@ -59,6 +59,6 @@ void EXAMPLE_task(void) {
 	
 	if(EXAMPLE_timer_adc >= READ_ADC_INTERVAL) {
 		EXAMPLE_timer_adc = 0;
-		printf("\t\t\t\tVoltage divider reads: %u\n", ADC_read(VOLTAGE_DIVIDER_PIN));
+		printf("\t\t\t\tVoltage divider reads: %u\n", ADC_read_10bit(VOLTAGE_DIVIDER_PIN));
 	}
 }
