@@ -38,8 +38,8 @@ Using rr-avr-os
 ---------------
 In order to use rr-avr-os you just need to fork this repository and start writing your usermods. Do not forget to call them from [main.c](/main.c).
 
-Be aware of your application time constraints and the limitations of round-robin: the code inside a module's task function should have a short execution time, otherwise it may starve other modules of processor time. The round-robin scheduling of rr-avr-os does not have preemption, thus, if a module blocks inside its task function it will compromise the entire system. Ideally the scheduler should be able to run all task functions in less time than shortest period you are tracking using the [time](/sysmods/time.c) sysmod. Major sources of delay are the usage of: 
-* Analog-to-Digital converter: read the comments on `ADC_init()` from [adc.c](/sysmods/adc.c);
+Be aware of your application time constraints and the limitations of round-robin: the code inside a module's task function should have a short execution time, otherwise it may starve other modules of processor time. The round-robin scheduling of rr-avr-os does not have preemption, thus, if a module blocks inside its task function it will compromise the entire system. Ideally the scheduler should be able to run all task functions in less time than shortest period you are tracking using the [time](/sysmods/time.c) sysmod. Sources of delay are the usage of: 
+* Analog-to-Digital converter: read the comments on `ADC_init_10bit()` from [adc.c](/sysmods/adc.c);
 * functions which read/write to the std{out/in}, which are directed to the UART: read the comments on `UART_putchar()` from [uart.c](/sysmods/uart.c).
 
 Take some time to read the Makefile. There are some configurations you will have to make. For instance, if you use doubles you need to uncomment MATH_LIB variable and choose the right type of printf and scanf functions.

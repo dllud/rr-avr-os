@@ -26,7 +26,7 @@
 #include "sysmods/adc.h"
 
 #define CHANGE_PWM_INTERVAL 2 // * 100 = 200 ms
-#define READ_ADC_INTERVAL 1 // seconds
+#define READ_ADC_INTERVAL 20 // seconds
 #define BUTTON_PORT PIND
 #define BUTTON_PIN PIND4
 #define LED_PORT PORTD
