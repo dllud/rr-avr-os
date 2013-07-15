@@ -17,21 +17,27 @@
 #ifndef DIGITALRW_H_
 #define DIGITALRW_H_
 
+/* It is preferable to use inline functions instead of function-like macros.
+ * Though if DIGITALRW_write was written as a function it would generate larger code.
+ * read and toggle are written as macros in order to keep consistency.
+*/
+ 
+/*
+ * On port read receives a PINx, where x = { A, B, C, D }
+*/
+#define DIGITALRW_read(port, pin) ((port) & (_BV(pin)))
+/*
+ * On port write and toggle receive a PORTx, where x = { A, B, C, D }
+*/
+#define DIGITALRW_write(port, pin, value) ((value) ? ((port) |= (_BV(pin))) : ((port) &= (~_BV(pin))))
+#define DIGITALRW_toggle(port, pin) ((port) ^= (_BV(pin)))
+
 extern uint32_t DIGITALRW_timer;  /* 1 ms */
 
 /* public functions **/
 
 void DIGITALRW_init(void);
-/*
- * On port read receives a PINx, where x = { A, B, C, D }
-*/
-char DIGITALRW_read(uint8_t port, uint8_t pin);
-/*
- * On port write and toggle receive a PORTx, where x = { A, B, C, D }
-*/
-void DIGITALRW_write(uint8_t port, uint8_t pin, uint8_t value);
-void DIGITALRW_toggle(uint8_t port, uint8_t pin);
-void DIGITALRW_write_timed(uint8_t port, uint8_t pin, uint8_t value, uint32_t duration);
+void DIGITALRW_write_timed(volatile uint8_t *port, uint8_t pin, uint8_t value, uint32_t duration);
 void DIGITALRW_task(void);
 
 #endif /* DIGITALRW_H_ */

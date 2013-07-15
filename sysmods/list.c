@@ -16,7 +16,7 @@
 
 #include "list.h"
 
-int LIST_insert(list_el **head, uint8_t port, uint8_t pin, uint32_t end_time) {
+int LIST_insert(list_el **head, volatile uint8_t *port, uint8_t pin, uint32_t end_time) {
     list_el *new_el;
     new_el = malloc(sizeof(struct node));
     if(new_el == NULL)
@@ -38,7 +38,7 @@ int LIST_remove(list_el **head, list_el *prev, list_el *to_remove) {
 	return 0;
 }
 
-int LIST_remove_expired(list_el **head, uint32_t current_time, void (*reset_func)(uint8_t, uint8_t)) {
+int LIST_remove_expired(list_el **head, uint32_t current_time, void (*reset_func)(volatile uint8_t *, uint8_t)) {
 	list_el *prev, *current, *old_current;
 	prev = current = *head;
 	while(current != NULL) {

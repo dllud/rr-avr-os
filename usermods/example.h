@@ -20,10 +20,10 @@
 /* Global includes for AVR */
 #include <avr/io.h>
 
-#define EXAMPLE_PWM_PIN OCR0A
+#define EXAMPLE_PWM_PIN OCR2B
 
-extern uint16_t EXAMPLE_timer_pwm;  /* 1 s */
-extern uint16_t EXAMPLE_timer_adc;  /* 1 s */
+extern uint8_t EXAMPLE_timer_pwm;  /* 100 ms */
+extern uint8_t EXAMPLE_timer_adc;  /* 1 s */
 
 /* public functions **/
 void EXAMPLE_init(void);

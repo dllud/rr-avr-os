@@ -4,7 +4,7 @@
  * 
  * Writes PWM signals.
  * Only 8-bit Timer/Counters are supported: Timer/Counter0 and Timer/Counter2 in ATmegax8
- * Reason: this way we can keep the variable pin as a uint8_t and use the functions in list.c
+ * Reason: this way we can keep the variable port as a uint8_t and use the functions in list.c
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License Version 3 as
@@ -35,44 +35,37 @@ uint32_t PWM_timer = 0;
 list_el *PWM_head = NULL;
 
 /*
- * Initializes a given PWM pin to mode Fast PWM, 8-bit with Fcpu speed.
+ * Initializes a given PWM port to mode Fast PWM, 8-bit with Fcpu speed.
  * Check the AVR ATmega manual, for instance page 108.
- * TODO: optimize.
 */
-void PWM_init(uint8_t pin) {
-	if(pin == OCR0A) {
-		TCCR0A = _BV(COM0A1) | _BV(COM0A0) | _BV(WGM01) | _BV(WGM00);
-		TCCR0B = _BV(CS00);
-	}
-	else if(pin == OCR0B) {
-		TCCR0A = _BV(COM0B1) | _BV(COM0B0) | _BV(WGM01) | _BV(WGM00);
-		TCCR0B = _BV(CS00);
-	}
-	else if(pin == OCR2A) {
-		TCCR2A = _BV(COM2A1) | _BV(COM2A0) | _BV(WGM21) | _BV(WGM20);
-		TCCR2B = _BV(CS20);
-	}
-	else if(pin == OCR2B) {
-		TCCR2A = _BV(COM2B1) | _BV(COM2B0) | _BV(WGM21) | _BV(WGM20);
-		TCCR2B = _BV(CS20);
+void PWM_init(volatile uint8_t *port) {
+	switch((uint16_t) port) {
+		case (uint16_t) &OCR0A:
+			TCCR0A = _BV(COM0A1) | _BV(COM0A0) | _BV(WGM01) | _BV(WGM00);
+			TCCR0B = _BV(CS00);
+			break;
+		case (uint16_t) &OCR0B:
+			TCCR0A = _BV(COM0B1) | _BV(COM0B0) | _BV(WGM01) | _BV(WGM00);
+			TCCR0B = _BV(CS00);
+			break;
+		case (uint16_t) &OCR2A:
+			TCCR2A = _BV(COM2A1) | _BV(COM2A0) | _BV(WGM21) | _BV(WGM20);
+			TCCR2B = _BV(CS20);
+			break;
+		case (uint16_t) &OCR2B:
+			TCCR2A = _BV(COM2B1) | _BV(COM2B0) | _BV(WGM21) | _BV(WGM20);
+			TCCR2B = _BV(CS20);
+			break;
 	}
 }
 
-void PWM_write(uint8_t pin, uint8_t value) {
-	pin = value;
+void PWM_write_timed(volatile uint8_t *port, uint8_t value, uint32_t duration){
+	PWM_write(*port, value);
+	LIST_insert(&PWM_head, port, 0, PWM_timer + duration);
 }
 
-void PWM_write_timed(uint8_t pin, uint8_t value, uint32_t duration){
-	PWM_write(pin, value);
-	LIST_insert(&PWM_head, 0, pin, PWM_timer + duration);
-}
-
-void PWM_reset(uint8_t pin) {
-	pin = 0xFF; //Set the duty cycle to 0%.
-}
-
-void PWM_reset_expired(uint8_t port, uint8_t pin) {
-	PWM_reset(pin);
+void PWM_reset_expired(volatile uint8_t *port, uint8_t pin) {
+	PWM_reset(*port);
 }
 
 void PWM_task(void) {

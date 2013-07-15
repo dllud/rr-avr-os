@@ -59,7 +59,7 @@ int main(void) {
 	UART_init();
 	ADC_init();
 	DIGITALRW_init();
-	PWM_init(EXAMPLE_PWM_PIN);
+	PWM_init(&EXAMPLE_PWM_PIN);
 	
 	/* usermods init */
 	EXAMPLE_init();

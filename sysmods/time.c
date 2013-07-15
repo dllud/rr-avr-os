@@ -52,7 +52,7 @@ void TIME_init(void)
 	OCR1A = 50; /* 50 units of 4us (check above) = 200us */
 	
 	/* Timer/Counter Interrupt Mask Register (p. 141)
-	 * enable "Timer/Counter0 Compare Match A" interrupt */
+	 * enable "Timer/Counter1 Compare Match A" interrupt */
 	TIMSK1 = _BV(OCIE1A);
 }
 
@@ -86,6 +86,7 @@ void TIME_task(void)
 	uint8_t elapsed_time; /* N * 200us */
 	static uint8_t t1ms_n200us = 0;
 	static uint8_t t10ms_n200us = 0;
+	static uint8_t t100ms_n10ms = 0;
 	static uint8_t t1s_n10ms = 0;
 
 #if 0  
@@ -140,56 +141,56 @@ void TIME_task(void)
 		t10ms_n200us -= TIME_10MS_N200US; /* 10 ms = 50 * 200 us */
 		++LED_timer;
 		/*++MODULEXXX_timer; :cfg02*/
-	}
-#endif
 
-/* 50 ms timers (needs 10 ms)
- * var char:  1-255 => 0.05s - 12.75s
- * var int: 1-65535 => 0.05s - 3276.75s (~54.6m) */
-#if 0
-	++t50ms_n10ms;
-	if(t50ms_n10ms >= TIME_50MS_N10MS)
-	{
-		t50ms_n10ms = 0; /* 50 ms =  5 * 10 ms */
-		/*++MODULEXXX_timer; :cfg02*/
-	}
-#endif
+		/* 50 ms timers (needs 10 ms)
+		 * var char:  1-255 => 0.05s - 12.75s
+		 * var int: 1-65535 => 0.05s - 3276.75s (~54.6m) */
+		#if 0
+			++t50ms_n10ms;
+			if(t50ms_n10ms >= TIME_50MS_N10MS)
+			{
+				t50ms_n10ms = 0; /* 50 ms =  5 * 10 ms */
+				/*++MODULEXXX_timer; :cfg02*/
+			}
+		#endif
 
-/* 100 ms timers (needs 10 ms)
- * var char:  1-255 => 0.1s - 25.5s
- * var int: 1-65535 => 0.1s - 6553.5s (~109m, ~1.8h) */
-#if 0
-	++t100ms_n10ms;
-	if(t100ms_n10ms >= TIME_100MS_N10MS)
-	{
-		t100ms_n10ms = 0; /* 100 ms = 10 * 10 ms */
-		/*++MODULEXXX_timer; :cfg02*/
-	}
-#endif
+		/* 100 ms timers (needs 10 ms)
+		 * var char:  1-255 => 0.1s - 25.5s
+		 * var int: 1-65535 => 0.1s - 6553.5s (~109m, ~1.8h) */
+		#if 1
+			++t100ms_n10ms;
+			if(t100ms_n10ms >= TIME_100MS_N10MS)
+			{
+				t100ms_n10ms = 0; /* 100 ms = 10 * 10 ms */
+				++EXAMPLE_timer_pwm;
+				/*++MODULEXXX_timer; :cfg02*/
+			}
+		#endif
 
-/* 1s timers (needs 10 ms)
- * var char:  1-255 => 1s - 255s (~4.2m)
- * var int: 1-65535 => 1s - 65535s (~1092m, ~18.2h) */
-#if 1
-	++t1s_n10ms;
-	if(t1s_n10ms >= TIME_1S_N10MS)
-	{
-		t1s_n10ms = 0; /* 1 s = 100 * 10 ms */
-		++EXAMPLE_timer_pwm;
-		++EXAMPLE_timer_adc;
-		/*++MODULEXXX_timer; :cfg02*/
+		/* 1s timers (needs 10 ms)
+		 * var char:  1-255 => 1s - 255s (~4.2m)
+		 * var int: 1-65535 => 1s - 65535s (~1092m, ~18.2h) */
+		#if 1
+			++t1s_n10ms;
+			if(t1s_n10ms >= TIME_1S_N10MS)
+			{
+				t1s_n10ms = 0; /* 1 s = 100 * 10 ms */
+				++EXAMPLE_timer_adc;
+				/*++MODULEXXX_timer; :cfg02*/
+			
+				/* 1 min timers (needs 1 s)
+				 * var char:  1-255 => 1m - 255m (~4.2h)
+				 * var int: 1-65535 => 1m - 65535m (~1092h, ~45.5d) */
+				#if 0
+					++t1m_n1s;
+					if(t1m_n1s >= TIME_1M_N1S)
+					{
+						t1m_n1s = 0; /* 1 min = 60 * 1 s */
+						/*++MODULEXXX_timer; :cfg02*/
+					}
+				#endif
+			}
+		#endif /* 1 s timers */
 	}
-#endif
-
-/* 1 min timers (needs 1 s)
- * var char:  1-255 => 1m - 255m (~4.2h)
- * var int: 1-65535 => 1m - 65535m (~1092h, ~45.5d) */
-#if 0
-	++t1m_n1s;
-	if(t1m_n1s >= TIME_1M_N1S)
-	{
-		t1m_n1s = 0; /* 1 min = 60 * 1 s */
-		/*++MODULEXXX_timer; :cfg02*/
-	}
-#endif
+#endif /* 10 ms timers */
 }

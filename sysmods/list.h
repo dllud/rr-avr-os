@@ -21,7 +21,7 @@
 #include <stdlib.h>
 
 struct node {
-   uint8_t port;
+   volatile uint8_t *port;
    uint8_t pin;
    uint32_t end_time;
    struct node * next;
@@ -29,7 +29,7 @@ struct node {
 
 typedef struct node list_el;
 
-int LIST_insert(list_el **head, uint8_t port, uint8_t pin, uint32_t end_time);
-int LIST_remove_expired(list_el **head, uint32_t current_time, void (*reset_func)(uint8_t, uint8_t));
+int LIST_insert(list_el **head, volatile uint8_t *port, uint8_t pin, uint32_t end_time);
+int LIST_remove_expired(list_el **head, uint32_t current_time, void (*reset_func)(volatile uint8_t *, uint8_t));
 
 #endif /* LIST_H_ */

@@ -25,7 +25,7 @@
 #include "sysmods/digitalrw.h"
 #include "sysmods/adc.h"
 
-#define CHANGE_PWM_INTERVAL 2 // seconds
+#define CHANGE_PWM_INTERVAL 2 // 2 * 100 = 200 ms
 #define READ_ADC_INTERVAL 20 // seconds
 #define BUTTON_PORT PIND
 #define BUTTON_PIN PIND4
@@ -34,18 +34,18 @@
 #define VOLTAGE_DIVIDER_PIN PINC0
 
 /* Global varibales ::vars **/
-uint16_t EXAMPLE_timer_pwm = 0;  /* 1 s*/
-uint16_t EXAMPLE_timer_adc = 0;  /* 1 s*/
+uint8_t EXAMPLE_timer_pwm = 0;  /* 100 ms*/
+uint8_t EXAMPLE_timer_adc = 0;  /* 1 s*/
 
 /* Local variables **/
 uint8_t pwm_value = 0;
 
 void EXAMPLE_init(void) { }
 
-void EXAMPLE_task(void) {
+void EXAMPLE_task(void) {	
 	if(DIGITALRW_read(BUTTON_PORT, BUTTON_PIN)) {
-		//printf("Push button pressed.\n");
 		DIGITALRW_write(LED_PORT, LED_PIN, 1);
+		//~ PWM_reset(EXAMPLE_PWM_PIN);
 	}
 	else
 		DIGITALRW_write(LED_PORT, LED_PIN, 0);
