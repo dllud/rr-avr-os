@@ -18,7 +18,8 @@
 #define DIGITALRW_H_
 
 /* It is preferable to use inline functions instead of function-like macros.
- * Though if DIGITALRW_write was written as a function it would generate larger code.
+ * Though if DIGITALRW_write was written as a function (even if inline) it would
+ * generate larger code. Read: http://www.nongnu.org/avr-libc/user-manual/FAQ.html#faq_port_pass
  * read and toggle are written as macros in order to keep consistency.
 */
  
