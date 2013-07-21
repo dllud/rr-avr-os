@@ -57,7 +57,7 @@ Example module
 
 rr-avr-os ships with an [example usermod](/usermods/example.c) which also serves as a functionality test. It expects the following circuit (the schematic is available in [gschem gEDA](http://www.geda-project.org/) format at [example.sch](/usermods/example.sch):
 
-![example usermod circuit schematic](http://img42.imageshack.us/img42/7471/4gye.png)
+![example usermod circuit schematic](http://img189.imageshack.us/img189/7073/o1i7.png)
 
 The module does three tasks:
 * reads PD4 pin and turns on LED1 at PD2 when S1 is pushed;

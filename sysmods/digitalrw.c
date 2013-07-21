@@ -30,7 +30,7 @@
 uint32_t DIGITALRW_timer;
 
 /* Local variables **/
-list_el *DIGITALRW_head; /* caution */
+list_el *DIGITALRW_head; /* = NULL */
 
 void DIGITALRW_init(void) { }
 

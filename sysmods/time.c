@@ -43,8 +43,7 @@ static uint8_t TIME_curr_time; /* incremented at each 200 us interruption */
 static uint8_t TIME_last_time;
 
 /* Initializes the timer. */
-void TIME_init(void)
-{
+void TIME_init(void) {
 	/* Timer/Counter Control Register (p. 139)
 	 * clock select: CLK/64 (16MHz/64=250KHZ -> 4us) */
 	TCCR1B = _BV(CS11) | _BV(CS10);
@@ -59,8 +58,7 @@ void TIME_init(void)
 /* Interruption "Compare Match A" handling routine (IHR) for timer 1.
  * The declaration follows the directives for WinAVR and avr-gcc.
  * An interruption is risen every 200 us (for a 16 MHz crystal). */
-ISR(TIMER1_COMPA_vect)
-{
+ISR(TIMER1_COMPA_vect) {
 	OCR1A += 50;
 	++TIME_curr_time;
 }
@@ -81,8 +79,7 @@ ISR(TIMER1_COMPA_vect)
  * 
  * The base unit of time counting is 200 us. This modules also allows to count 1 ms,
  * 10 ms, 50 ms, 100 ms, 1 s, and 1 min depending on the chosen configuration. */
-void TIME_task(void)
-{
+void TIME_task(void) {
 	uint8_t elapsed_time; /* N * 200us */
 	static uint8_t t1ms_n200us = 0;
 	static uint8_t t10ms_n200us = 0;
@@ -122,8 +119,7 @@ void TIME_task(void)
  * var int: 1-65535 => 1ms - 65535ms (~65.5s) */
 #if 1
 	t1ms_n200us += elapsed_time;
-	if(t1ms_n200us >= TIME_1MS_N200US)
-	{
+	if(t1ms_n200us >= TIME_1MS_N200US) {
 		t1ms_n200us -= TIME_1MS_N200US; /* 1 ms = 5 * 200 us */
 		++DIGITALRW_timer;
 		++PWM_timer;
@@ -136,8 +132,7 @@ void TIME_task(void)
  * var int: 1-65535 => 0.01s - 655.35s (~10.9m) */
 #if 1
 	t10ms_n200us += elapsed_time;
-	if(t10ms_n200us >= TIME_10MS_N200US)
-	{
+	if(t10ms_n200us >= TIME_10MS_N200US) {
 		t10ms_n200us -= TIME_10MS_N200US; /* 10 ms = 50 * 200 us */
 		++LED_timer;
 		/*++MODULEXXX_timer; :cfg02*/
@@ -146,9 +141,7 @@ void TIME_task(void)
 		 * var char:  1-255 => 0.05s - 12.75s
 		 * var int: 1-65535 => 0.05s - 3276.75s (~54.6m) */
 		#if 0
-			++t50ms_n10ms;
-			if(t50ms_n10ms >= TIME_50MS_N10MS)
-			{
+			if(++t50ms_n10ms >= TIME_50MS_N10MS) {
 				t50ms_n10ms = 0; /* 50 ms =  5 * 10 ms */
 				/*++MODULEXXX_timer; :cfg02*/
 			}
@@ -158,8 +151,7 @@ void TIME_task(void)
 		 * var char:  1-255 => 0.1s - 25.5s
 		 * var int: 1-65535 => 0.1s - 6553.5s (~109m, ~1.8h) */
 		#if 1
-			if(++t100ms_n10ms >= TIME_100MS_N10MS)
-			{
+			if(++t100ms_n10ms >= TIME_100MS_N10MS) {
 				t100ms_n10ms = 0; /* 100 ms = 10 * 10 ms */
 				++EXAMPLE_timer_pwm;
 				/*++MODULEXXX_timer; :cfg02*/
@@ -170,8 +162,7 @@ void TIME_task(void)
 		 * var char:  1-255 => 1s - 255s (~4.2m)
 		 * var int: 1-65535 => 1s - 65535s (~1092m, ~18.2h) */
 		#if 1
-			if(++t1s_n10ms >= TIME_1S_N10MS)
-			{
+			if(++t1s_n10ms >= TIME_1S_N10MS) {
 				t1s_n10ms = 0; /* 1 s = 100 * 10 ms */
 				++EXAMPLE_timer_adc;
 				/*++MODULEXXX_timer; :cfg02*/
@@ -180,9 +171,7 @@ void TIME_task(void)
 				 * var char:  1-255 => 1m - 255m (~4.2h)
 				 * var int: 1-65535 => 1m - 65535m (~1092h, ~45.5d) */
 				#if 0
-					++t1m_n1s;
-					if(t1m_n1s >= TIME_1M_N1S)
-					{
+					if(++t1m_n1s >= TIME_1M_N1S) {
 						t1m_n1s = 0; /* 1 min = 60 * 1 s */
 						/*++MODULEXXX_timer; :cfg02*/
 					}

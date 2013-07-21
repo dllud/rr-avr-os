@@ -39,14 +39,13 @@ uint8_t EXAMPLE_timer_adc;  /* 1 s*/
 
 /* Local variables **/
 uint8_t pwm_value;
+uint8_t second;
 
 void EXAMPLE_init(void) { }
 
 void EXAMPLE_task(void) {	
-	if(DIGITALRW_read(BUTTON_PORT, BUTTON_PIN)) {
+	if(DIGITALRW_read(BUTTON_PORT, BUTTON_PIN))
 		DIGITALRW_write(LED_PORT, LED_PIN, 1);
-		//~ PWM_reset(EXAMPLE_PWM_PIN);
-	}
 	else
 		DIGITALRW_write(LED_PORT, LED_PIN, 0);
 	

@@ -32,7 +32,7 @@
 uint32_t PWM_timer;
 
 /* Local variables **/
-list_el *PWM_head; /* caution */
+list_el *PWM_head; /* = NULL */
 
 /*
  * Initializes a given PWM port to mode Fast PWM, 8-bit with Fcpu speed.

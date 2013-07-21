@@ -34,8 +34,7 @@
 #include "usermods/example.h"
 
 /* Initializes AVR microcontroller. */
-void avr_init(void)
-{
+void avr_init(void) {
 	/* DDR - Data Direction Register.
 	 * Specifies if a port should be an input 0 or an output 1.
 	 * PORTA does not exist in ATmegaX8 */
@@ -64,8 +63,7 @@ int main(void) {
 
 	enable_interrupts; /* Enables all interrupts (node.h) */
 	
-	while(1)
-	{
+	while(1) {
 		/* sysmods task */
 		TIME_task();
 		LED_task();
