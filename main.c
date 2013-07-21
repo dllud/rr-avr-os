@@ -45,9 +45,7 @@ void avr_init(void)
 	DDRD = 0x0E; /* Arduino's digital outputs 0-7. RX = 0 and TX = 1 0000 1110 */
 
 	/* All outputs = 0 and pull-ups off to allow reading. */
-	PORTB = 0x00;
-	PORTC = 0x00;
-	PORTD = 0x00;
+	PORTB = PORTC = PORTD = 0x00;
 }
 
 /* Main cicle. Initializes modules and calls their tasks in round-robin. */

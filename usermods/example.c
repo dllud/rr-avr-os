@@ -34,11 +34,11 @@
 #define VOLTAGE_DIVIDER_PIN PINC0
 
 /* Global varibales ::vars **/
-uint8_t EXAMPLE_timer_pwm = 0;  /* 100 ms*/
-uint8_t EXAMPLE_timer_adc = 0;  /* 1 s*/
+uint8_t EXAMPLE_timer_pwm;  /* 100 ms*/
+uint8_t EXAMPLE_timer_adc;  /* 1 s*/
 
 /* Local variables **/
-uint8_t pwm_value = 0;
+uint8_t pwm_value;
 
 void EXAMPLE_init(void) { }
 
