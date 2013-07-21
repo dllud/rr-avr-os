@@ -158,8 +158,7 @@ void TIME_task(void)
 		 * var char:  1-255 => 0.1s - 25.5s
 		 * var int: 1-65535 => 0.1s - 6553.5s (~109m, ~1.8h) */
 		#if 1
-			++t100ms_n10ms;
-			if(t100ms_n10ms >= TIME_100MS_N10MS)
+			if(++t100ms_n10ms >= TIME_100MS_N10MS)
 			{
 				t100ms_n10ms = 0; /* 100 ms = 10 * 10 ms */
 				++EXAMPLE_timer_pwm;
@@ -171,8 +170,7 @@ void TIME_task(void)
 		 * var char:  1-255 => 1s - 255s (~4.2m)
 		 * var int: 1-65535 => 1s - 65535s (~1092m, ~18.2h) */
 		#if 1
-			++t1s_n10ms;
-			if(t1s_n10ms >= TIME_1S_N10MS)
+			if(++t1s_n10ms >= TIME_1S_N10MS)
 			{
 				t1s_n10ms = 0; /* 1 s = 100 * 10 ms */
 				++EXAMPLE_timer_adc;

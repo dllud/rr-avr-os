@@ -27,10 +27,10 @@
 
 /* Global varibales **/
 
-uint32_t DIGITALRW_timer = 0;
+uint32_t DIGITALRW_timer;
 
 /* Local variables **/
-list_el *DIGITALRW_head = NULL;
+list_el *DIGITALRW_head; /* caution */
 
 void DIGITALRW_init(void) { }
 
