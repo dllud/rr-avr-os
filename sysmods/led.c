@@ -68,7 +68,7 @@ void LED_init(uint8_t num_pulses)
  * blinks this variable must contain the value 2*N-1. Check led_num_pulses().*/
 void LED_task(void)
 {
-  if(led_toggle_n == 0)
+  if(!led_toggle_n)
   {
     if(LED_timer >= LED_PAUSE_TIME)
     {
