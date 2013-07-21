@@ -39,7 +39,7 @@
 #define LED_PAUSE_TIME   50  /* 500 ms */
 
 /* Global variables */
-uint8_t LED_timer = 0;  /* 10 ms */
+uint8_t LED_timer;  /* 10 ms */
 
 /* Local variables */
 static uint8_t led_num_toggles, led_toggle_n;
