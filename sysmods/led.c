@@ -42,22 +42,13 @@
 uint8_t LED_timer;  /* 10 ms */
 
 /* Local variables */
-static uint8_t led_num_toggles, led_toggle_n;
+static uint8_t led_num_toggles;
 
 /* Assigns the adequate value to led_num_toggles which defines the
  * number of impulses the "alive" LED will emmit.
  * led_num_toggles = ("num_pulses" * 2) - 1. */
-void LED_num_pulses(uint8_t num_pulses) {
-	led_num_toggles = (num_pulses << 1) - 1;
-}
-
-/* Initialization of this task.*/
 void LED_init(uint8_t num_pulses) {
-	/* PIN of the internal LED was already initialized. 
-	 * Check avr_init() in main.c */
-	/* led_timer = 0; unnecessary */
-	LED_num_pulses(num_pulses);
-	/* led_toggle_n = 0; unnecessary */
+	led_num_toggles = (num_pulses << 1) - 1;
 }
 
 /* LED task. Controls the "alive" LED. The LED emmits a sequence of blinks
@@ -65,18 +56,15 @@ void LED_init(uint8_t num_pulses) {
  * The number of sequential blinks depends on led_num_toggles. For N
  * blinks this variable must contain the value 2*N-1. Check led_num_pulses().*/
 void LED_task(void) {
-	if(!led_toggle_n) {
-		if(LED_timer >= LED_PAUSE_TIME) {
-			LED_TOGGLE;
-			LED_timer = 0;
-			led_toggle_n = led_num_toggles;
-		}
+	static uint8_t led_toggle_n;
+	if(!led_toggle_n && (LED_timer >= LED_PAUSE_TIME)) {
+		LED_TOGGLE;
+		LED_timer = 0;
+		led_toggle_n = led_num_toggles;
 	}
-	else {
-		if(LED_timer >= LED_PULSE_TIME) {
-			LED_TOGGLE;
-			LED_timer = 0;
-			--led_toggle_n;
-		}
+	else if(LED_timer >= LED_PULSE_TIME) {
+		LED_TOGGLE;
+		LED_timer = 0;
+		--led_toggle_n;
 	}
 }

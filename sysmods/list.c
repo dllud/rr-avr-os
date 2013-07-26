@@ -29,7 +29,7 @@ int LIST_insert(list_el **head, volatile uint8_t *port, uint8_t pin, uint32_t en
     return 0;
 }
 
-int LIST_remove(list_el **head, list_el *prev, list_el *to_remove) {
+static inline int LIST_remove(list_el **head, list_el *prev, list_el *to_remove) {
 	if(to_remove == *head) // The element is the head of the list.
 		*head = to_remove->next;
 	else // It's not the head.

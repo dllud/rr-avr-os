@@ -22,6 +22,5 @@ extern uint8_t LED_timer;  /* 10 ms */
 
 void LED_init(uint8_t num_pulses);
 void LED_task(void);
-void LED_num_pulses(uint8_t num_pulses);
 
 #endif

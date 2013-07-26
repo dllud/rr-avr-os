@@ -54,7 +54,7 @@ void ADC_init_8bit(void) {
 	ADCSRA |= _BV(ADEN);
 }
 
-void ADC_read_aux(uint8_t pin) {
+static void ADC_read_aux(uint8_t pin) {
 	/* ADC pin must be 0-15.
 	 * Verification disabled for performance improvement.
 	if(pin > 15)
