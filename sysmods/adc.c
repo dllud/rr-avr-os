@@ -66,7 +66,7 @@ static void ADC_read_aux(uint8_t pin) {
 	/* Start Single Conversion */
 	ADCSRA |= _BV(ADSC);
 	/* Wait for conversion to complete */
-	loop_until_bit_is_set(ADCSRA, ADSC);
+	loop_until_bit_is_clear(ADCSRA, ADSC);
 	/* Clear ADIF by writing 1 to it
 	 * This is standard way of clearing bits in IO as said in datasheets.
 	 * The code writes '1' but it results in setting bit to '0' !!!
