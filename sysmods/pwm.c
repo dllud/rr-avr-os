@@ -41,20 +41,20 @@ list_el *PWM_head; /* = NULL */
 void PWM_init(volatile uint8_t *port) {
 	switch((uint16_t) port) {
 		case (uint16_t) &OCR0A:
-			TCCR0A = _BV(COM0A1) | _BV(COM0A0) | _BV(WGM01) | _BV(WGM00);
-			TCCR0B = _BV(CS00);
+			TCCR0A |= _BV(COM0A1) | _BV(COM0A0) | _BV(WGM01) | _BV(WGM00);
+			TCCR0B |= _BV(CS00);
 			break;
 		case (uint16_t) &OCR0B:
-			TCCR0A = _BV(COM0B1) | _BV(COM0B0) | _BV(WGM01) | _BV(WGM00);
-			TCCR0B = _BV(CS00);
+			TCCR0A |= _BV(COM0B1) | _BV(COM0B0) | _BV(WGM01) | _BV(WGM00);
+			TCCR0B |= _BV(CS00);
 			break;
 		case (uint16_t) &OCR2A:
-			TCCR2A = _BV(COM2A1) | _BV(COM2A0) | _BV(WGM21) | _BV(WGM20);
-			TCCR2B = _BV(CS20);
+			TCCR2A |= _BV(COM2A1) | _BV(COM2A0) | _BV(WGM21) | _BV(WGM20);
+			TCCR2B |= _BV(CS20);
 			break;
 		case (uint16_t) &OCR2B:
-			TCCR2A = _BV(COM2B1) | _BV(COM2B0) | _BV(WGM21) | _BV(WGM20);
-			TCCR2B = _BV(CS20);
+			TCCR2A |= _BV(COM2B1) | _BV(COM2B0) | _BV(WGM21) | _BV(WGM20);
+			TCCR2B |= _BV(CS20);
 			break;
 	}
 }
