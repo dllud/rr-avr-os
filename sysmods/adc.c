@@ -84,6 +84,15 @@ uint8_t ADC_read_8bit(uint8_t pin) {
 }
 
 /* Disable ADC */
-void ADC_off(void) {
+inline void ADC_off(void) {
 	ADCSRA &= ~_BV(ADEN);
+}
+
+inline void ADC_ref_AVCC(void) {
+	ADMUX |= _BV(REFS0);
+	ADMUX &= ~_BV(REFS1);
+}
+
+inline void ADC_ref_1V(void) {	
+	ADMUX |= _BV(REFS1) | _BV(REFS0);
 }

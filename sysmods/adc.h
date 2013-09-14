@@ -26,5 +26,7 @@ void ADC_init_8bit(void);
 uint16_t ADC_read_10bit(uint8_t pin);
 uint8_t ADC_read_8bit(uint8_t pin);
 void ADC_off(void);
+void ADC_ref_AVCC(void);
+void ADC_ref_1V(void);
 
 #endif /* ADC_H_ */
